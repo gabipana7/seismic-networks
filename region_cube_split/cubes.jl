@@ -49,9 +49,10 @@ function region_cube_split(df; side=5)
     yLongitude = [floor(Int,((i-minLon)*yreal/(maxLon-minLon))+1) for i in df.Longitude]
     zDepth = [floor(Int,((i-minDepth)*zreal/(maxDepth-minDepth))+1) for i in df.Depth]
 
-    cubeIndex = zeros(Int64, 0)
+    # Warning, use STRING for indexing because of naming problems when making graphs!
+    cubeIndex = String[]
     for i in eachindex(xLatitude)
-        append!(cubeIndex,xLatitude[i]-1+x*(yLongitude[i]-1)+x*y*(zDepth[i]-1))
+        push!(cubeIndex, string(xLatitude[i]-1+x*(yLongitude[i]-1)+x*y*(zDepth[i]-1)))
     end
 
     df.cubeIndex = cubeIndex
