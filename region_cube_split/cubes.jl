@@ -1,7 +1,7 @@
 using DataFrames, Geodesy
 
 # This function splits the seismic region in equally sized cubes
-function region_cube_split(df; side=5)
+function region_cube_split(df; side=5, energyRelease=false)
 
     # Minimum and maximum of every dimension
     minLat=minimum(df.Latitude)
@@ -70,6 +70,12 @@ function region_cube_split(df; side=5)
     cubeLatitude=[round(minLat + x_half_cube*(2*i-1), digits = 4) for i in xLatitude]
     cubeLongitude=[round(minLon + y_half_cube*(2*n-1), digits = 4) for n in yLongitude]
     cubeDepth=[round(minDepth + z_half_cube*(2*n-1), digits = 4) for n in zDepth]
+
+
+    if energyRelease
+        energyRelease=[10^(5.24 + 1.44*i) for i in df.Magnitude];
+        df.energyRelease = energyRelease
+    end
 
 
     # Separate dataframe for cubes information (reduces data redundancy)
