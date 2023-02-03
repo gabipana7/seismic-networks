@@ -73,7 +73,7 @@ function region_cube_split(df; side=5, energyRelease=false)
 
 
     if energyRelease
-        energyRelease=[10^(5.24 + 1.44*i) for i in df.Magnitude];
+        energyRelease=[round(10^(4.4 + 1.5*i) * 0.000001, digits=4) for i in df.Magnitude];
         df.energyRelease = energyRelease
     end
 

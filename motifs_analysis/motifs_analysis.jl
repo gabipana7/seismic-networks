@@ -77,7 +77,7 @@ function area_triangles(motifs,df_cubes)
             lon = df_cubes.cubeLongitude[motifs[i,j]]
             dep = df_cubes.cubeDepth[motifs[i,j]]
 
-            x[j] = LLA(lat,lon,-dep)
+            x[j] = LLA(lat,lon,-1000*dep)
 
         end
 
@@ -121,7 +121,7 @@ function volume_tetrahedrons(motifs,df_cubes)
 
         end
 
-        # Calculate preliminary elements using tetrahedron sides
+        # Calculate preliminary elements using tetrahedron sides (in km)
         W = Geodesy.euclidean_distance(x[1],x[2]) / 1000
         V = Geodesy.euclidean_distance(x[2],x[3]) / 1000
         U = Geodesy.euclidean_distance(x[1],x[3]) / 1000
