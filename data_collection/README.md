@@ -106,6 +106,7 @@ ASCII *.catalog files.
 - clean the data
     - there are instances were seconds are marked with "60", incompatible with turning into datetime -> turn to "50"
     - there are "0.0" magnitudes recorded -> eliminate records
+    - keep only Event_Type equal to "eq" (from earthquake)
 - export the dataframe to csv for further Data Cleaning and Exploratory Data Analysis
 
 
