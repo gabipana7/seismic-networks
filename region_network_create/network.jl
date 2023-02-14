@@ -27,12 +27,12 @@ function create_network(df, df_cubes; edgeWeight=false)
     # Create Seismic Network
     i=0
     # Length of database-1
-    while i < length(vrancea.cubeIndex)-1
+    while i < length(df.cubeIndex)-1
         # increment i first
         i+=1
         # Get the two nodes using cubeIndex indexing
-        current_node = MG[vrancea.cubeIndex[i],:cubeIndex]
-        target_node = MG[vrancea.cubeIndex[i+1],:cubeIndex]
+        current_node = MG[df.cubeIndex[i],:cubeIndex]
+        target_node = MG[df.cubeIndex[i+1],:cubeIndex]
 
         # Control for edgeWeight
         if edgeWeight == false
@@ -66,9 +66,9 @@ end
 # function that adds cube properties from df_cubes to the network
 function add_properties(MG, df_cubes)
     for i in 1:nv(MG)
-        set_prop!(MG, i, :xLatitude, vrancea_cubes.xLatitude[i])
-        set_prop!(MG, i, :yLongitude, vrancea_cubes.yLongitude[i])
-        set_prop!(MG, i, :zDepth, vrancea_cubes.zDepth[i])
+        set_prop!(MG, i, :xLatitude, df_cubes.xLatitude[i])
+        set_prop!(MG, i, :yLongitude, df_cubes.yLongitude[i])
+        set_prop!(MG, i, :zDepth, df_cubes.zDepth[i])
     end
 
     return MG
