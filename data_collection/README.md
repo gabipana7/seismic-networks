@@ -12,8 +12,8 @@ Romplus catalog available at: "http://www.infp.ro/data/romplus.txt"
 
 - a fixed width file (.txt file) is downloaded
 - file needs parsing: method - line, by line
-- skip the header line and parse all the liens
-- specify explicitly the columns to be selected for each data:
+- skip the header line and parse all the lines
+- specify explicitly the columns to be selected for each column:
     - datetime [1:23]
     - latitude [38:45]
     - longitude [48:56]
@@ -110,9 +110,17 @@ ASCII *.catalog files.
 - export the dataframe to csv for further Data Cleaning and Exploratory Data Analysis
 
 
-
 ---
 ## Italy
+Italy catalog available for query at : "http://webservices.ingv.it/fdsnws/event/1"
+A Swagger API Endpoint opens up "http://webservices.ingv.it/swagger-ui/dist/?url=https://ingv.github.io/openapi/fdsnws/event/0.0.1/event.yaml"
+Here the query usage is explained
+
+- the maximum number of data per query is 15000
+- as a consequence, queries are made for each month, for each year to make sure not to go over the 15000 limit
+- output is a well delimited file using "|" as delimiter
+- DataFrames handles the file nicely
+- export the dataframe to csv for further Data Cleaning and Exploratory Data Analysis
 
 
 ---
@@ -130,7 +138,7 @@ japan_parser.jl
 - parses each database file
 - access each line recursively
 #### Pre-Processing
-- specify explicitly the columns to be selected for each data (will be in string at first because of inconsitencies in data)
+- specify explicitly the columns to be selected for each data (will be in string at first because of inconsistencies in the data)
 	- identifier [1:1]
 	- Datetime
 		- year [2:5]
@@ -151,7 +159,7 @@ japan_parser.jl
 		- magnitude1_type line[55:55]
 
 #### Processing
-- further processing needed because of data inconsisencies
+- further processing needed because of data inconsistencies
 - Datetime
 	- second divided by 100
 - Latitude
@@ -163,6 +171,8 @@ japan_parser.jl
 - Magnitude
 	- inconsistencies: empty strings, values with letters, negative magnitudes
 	- drop all data where all of the above occur
+
+- export the dataframe to csv for further Data Cleaning and Exploratory Data Analysis
 
 ---
 ### Other? Coming soon?
