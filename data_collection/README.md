@@ -1,4 +1,4 @@
-## Data collection for different seismic regions around the globe
+# Data collection for different seismic regions around the globe
 The interest is in the following features for each seismic event:
 - datetime
 - latitude
@@ -6,7 +6,7 @@ The interest is in the following features for each seismic event:
 - depth
 - magnitude
 
-### Romania
+## Romania
 
 Romplus catalog available at: "http://www.infp.ro/data/romplus.txt"
 
@@ -26,7 +26,7 @@ Romplus catalog available at: "http://www.infp.ro/data/romplus.txt"
 
 
 ---
-### California, USA
+## California, USA
 
 California catalog available at: "https://service.scedc.caltech.edu/ftp/catalogs/SCEC_DC/SCEDC_catalogs.tar.gz"
 
@@ -112,11 +112,57 @@ ASCII *.catalog files.
 
 
 ---
-### Italy
+## Italy
 
 
 ---
-### Japan
+## Japan
+Japan catalog available at: "https://www.data.jma.go.jp/svd/eqev/data/bulletin/hypo.html"
 
+### Download
+japan_download.jl
+- parses the website to find downloadable links
+- downloads recursively each file (.zips for each year)
+- unzips databases
 
+### Parsing
+japan_parser.jl
+- parses each database file
+- access each line recursively
+#### Pre-Processing
+- specify explicitly the columns to be selected for each data (will be in string at first because of inconsitencies in data)
+	- identifier [1:1]
+	- Datetime
+		- year [2:5]
+		- month [6:7]
+		- day [8:9]
+		- hour [10:11]
+		- minute [12:13]
+		- second [14:17]
+	- Latitude
+		- latitude_deg [22:24]
+		- latitude_min [25:28]
+	- Longitude
+		- longitude_deg [33:36]
+		- longitude_min [37:40]
+	- depth [45:49]
+	- Magnitude
+		- magnitude1 [53:54]
+		- magnitude1_type line[55:55]
+
+#### Processing
+- further processing needed because of data inconsisencies
+- Datetime
+	- second divided by 100
+- Latitude
+	- latitude_min divided by 100, then by 60
+	- latitude (in decimal degrees) = latitude_deg + latitude_min
+- Longitude - similar to latitude
+- Depth
+	- divided by 100 
+- Magnitude
+	- inconsistencies: empty strings, values with letters, negative magnitudes
+	- drop all data where all of the above occur
+
+---
 ### Other? Coming soon?
