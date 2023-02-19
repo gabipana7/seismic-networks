@@ -20,18 +20,18 @@ function region_cube_split(df; side=5, energyRelease=false)
     xf_lla = LLA(maxLat,minLon,-minDepth)
     lat_dist_in_km = Geodesy.euclidean_distance(xf_lla,x0_lla) / 1000 # eucl_dist returns in meters
     # xreal, without ceiling, used when assigning earthquakes to certain cubes
-    xreal = lat_dist_in_km / 5
+    xreal = lat_dist_in_km / side
     # Actual number of cubes (integer) on Latitude distance to cover whole volume
-    x = ceil(Int, lat_dist_in_km / 5)
+    x = ceil(Int, lat_dist_in_km / side)
 
     # Longitude
     y0_lla = LLA(minLat,minLon,-minDepth)
     yf_lla = LLA(minLat,maxLon,-minDepth)
     lon_dist_in_km = Geodesy.euclidean_distance(yf_lla,y0_lla) / 1000
     # yreal, without ceiling, used when assigning earthquakes to certain cubes
-    yreal = lon_dist_in_km / 5
+    yreal = lon_dist_in_km / side
     # Actual number of cubes (integer) on Longitude distance to cover whole volume
-    y = ceil(Int, lon_dist_in_km / 5)
+    y = ceil(Int, lon_dist_in_km / side)
 
     # Depth (already in km)
     # Number of cubes on depth distance to cover whole volume
