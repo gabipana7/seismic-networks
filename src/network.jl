@@ -6,11 +6,60 @@ using Graphs, MetaGraphs
 # and Edges being the subsequent earthquakes in the cubes
 # seismic database is parsed chronologically
 # Seismic event x has cubeIndex XXXX and becomes node
-# Seisnic event x+1 has cubeIndex YYYY and becomes node
+# Seismic event x+1 has cubeIndex YYYY and becomes node
 # Between XXXX and YYYY an edge is created
 # With edgeWeight you control if you take into account Edge Weights
 
-function create_network(df, df_cubes; edgeWeight=false)
+
+function create_network(df, df_cubes)
+    
+    # Initialize empty Graph 
+    G = Graph(length(df_cubes.cubeIndex))
+    # And metagraph (for adding properties to vertices and edges)
+    MG = MetaGraph(G)
+
+    # Use cubeIndex to add index property to all graph nodes
+    for i in 1:nv(MG)
+        set_prop!(MG, i, :cubeIndex, df_cubes.cubeIndex[i])
+        set_prop!(MG, i, :degree, 0)
+        set_prop!(MG, i, :indegree, 0)
+        set_prop!(MG, i, :outdegree, 0)
+    end
+    # Used to easily access the information, based on cubeIndex and not graph index
+    set_indexing_prop!(MG, :cubeIndex)
+
+    i=0
+    while i < length(df.cubeIndex)-1
+
+        i+=1
+        current_node = MG[df.cubeIndex[i],:cubeIndex]
+        target_node = MG[df.cubeIndex[i+1],:cubeIndex]
+
+        add_edge!(MG, current_node, target_node)
+        
+        set_prop!(MG, current_node, :degree, get_prop(MG,current_node,:degree)+1)
+        set_prop!(MG, target_node, :degree, get_prop(MG,target_node,:degree)+1)
+
+        set_prop!(MG, current_node, :outdegree, get_prop(MG,current_node,:outdegree)+1)
+        set_prop!(MG, target_node, :indegree, get_prop(MG,target_node,:indegree)+1)
+
+    end
+
+    # current_node = MG[df.cubeIndex[1],:cubeIndex]
+    # target_node = MG[df.cubeIndex[length(df.cubeIndex)],:cubeIndex]
+    # set_prop!(MG, current_node, :degree, get_prop(MG,current_node,:degree)+1)
+    # set_prop!(MG, target_node, :degree, get_prop(MG,target_node,:degree)+1)
+
+
+    return(MG)
+
+end
+
+
+
+
+
+function create_network_edgeweight(df, df_cubes; edgeWeight=false)
 
     # Initialize empty Graph 
     G = Graph(length(df_cubes.cubeIndex))

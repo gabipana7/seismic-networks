@@ -2,7 +2,7 @@
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "ace76d5a08c64b76f14b5aaf2753bc01a8b2abc9"
+project_hash = "2c3e5fa011d9da62d202e5f6a84432a2d409c15e"
 
 [[deps.AbstractFFTs]]
 deps = ["ChainRulesCore", "LinearAlgebra"]
@@ -1316,6 +1316,12 @@ deps = ["Conda", "Dates", "Libdl", "LinearAlgebra", "MacroTools", "Serialization
 git-tree-sha1 = "62f417f6ad727987c755549e9cd88c46578da562"
 uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 version = "1.95.1"
+
+[[deps.PyPlot]]
+deps = ["Colors", "LaTeXStrings", "PyCall", "Sockets", "Test", "VersionParsing"]
+git-tree-sha1 = "92e7ca803b579b8b817f004e74b205a706d9a974"
+uuid = "d330b81b-6aea-500a-939a-2ce795aea3ee"
+version = "2.11.1"
 
 [[deps.QOI]]
 deps = ["ColorTypes", "FileIO", "FixedPointNumbers"]
