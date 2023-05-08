@@ -5,6 +5,10 @@
 ### This is an enhanced Julia port of the original project done in Python
 
 ---
+# Exploratory Data Analysis
+For an extensive review of the data collection and cleaning process, as well as graphical exploration of the data, codes and figures are presented in the complementary project: https://github.com/gabipana7/seismic-exploratory-data-analysis
+
+---
 # Network Generation
 First of all networks are generated and their connectivity distribution is analyzed.
 
