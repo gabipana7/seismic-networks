@@ -50,10 +50,10 @@ function networks_plot_gmt(region,side,minimum_magnitude,motif)
     marker_size = connectivity ./10
 
     # control marker color by connectivity
-    C_markers = makecpt(cmap=:seis, range=(minimum(connectivity),maximum(connectivity)),continuous=true, inverse=true);
+    C_markers = makecpt(cmap=:seis, range=(minimum(connectivity),maximum(connectivity)), inverse=true);
 
     # View of the plot
-    perspective = (135,15)
+    perspective = (140,15)
 
     # Basemap to define the axes
     basemap(limits=map_coords_depth, proj=:merc, zsize=6, frame="SEnwZ1+b xafg yafg zaf+lDepth(km)", view=perspective)
@@ -69,7 +69,7 @@ function networks_plot_gmt(region,side,minimum_magnitude,motif)
 
     # Nodes
     scatter3!(df_filtered_cubes.cubeLongitude, df_filtered_cubes.cubeLatitude, -df_filtered_cubes.cubeDepth,
-    limits=map_coords_depth, frame="SEnwZ1+b xafg yafg zaf",proj=:merc, marker=:cube, markersize=0.1, #markersize=marker_size,
+    limits=map_coords_depth,frame="SEnwZ1+b xafg yafg zaf",proj=:merc, marker=:cube,markersize=0.1, #markersize=marker_size,
     cmap=C_markers, zcolor=connectivity, 
     alpha=50, view=perspective)
 
@@ -89,19 +89,37 @@ function networks_plot_gmt(region,side,minimum_magnitude,motif)
     end
 
     # Colorbar
-    colorbar!(pos=(outside=:BC, offset=(0,1.5)), shade=0.4, JZ="6c", xaxis=(annot=:auto,), frame=(xlabel="Degree",),par=(MAP_LABEL_OFFSET=0.8,))
+    colorbar!(limits=map_coords, pos=(paper=(20,2.0), size=(8,0.5)), shade=0.4, xaxis=(annot=2,), frame=(xlabel="Degree",),par=(MAP_LABEL_OFFSET=0.6,),view=(180,90))
 
     # Relief map
-    grdview!(relief_map, proj=:merc, surftype=(image=2000,), 
-    cmap=C_map, zsize=0.05, alpha=10 ,yshift=5.6, view=perspective,
+    grdview!(relief_map, proj=:merc, surftype=(image=1000,), 
+    cmap=C_map, zsize=0.5, alpha=10 ,yshift=5.6, view=perspective,
     savefig="./networks/$region/side_$(side)km/$(region)_side_$(side)km_minmag_$(minimum_magnitude).png", 
     show=true)
+
 
 end
 
 
-networks_plot_gmt("italy", 5.0, 4, "Triangle")
+# Romania
+# pos=(paper=(16,2.0), size=(8,0.5))
+# perspective = (135,20)
+# networks_plot_gmt("romania", 5, 4, "")
 
-# region = "romania"
-# side = 3
-# minimum_magnitude = 4
+
+# California
+# pos=(paper=(20,2.0), size=(8,0.5))
+# perspective = (140,15)
+# networks_plot_gmt("california", 2.0, 4, "")
+
+
+# Japan
+# pos=(paper=(21,2.0), size=(8,0.5))
+# perspective = (140,15)
+# networks_plot_gmt("japan", 5, 5, "")
+
+
+# Italy
+# pos=(paper=(24,2.0), size=(8,0.5))
+# perspective = (140,15)
+# networks_plot_gmt("italy", 5.0, 4, "")
