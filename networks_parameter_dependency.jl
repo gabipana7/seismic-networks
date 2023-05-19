@@ -80,6 +80,15 @@ function ccdfs_and_fits(region)
         # minimum_magnitudes = [2,3,4];
     end;
 
+    # Read data
+    path = "./data/"
+    filepath = path * region * ".csv"
+    df = CSV.read(filepath, DataFrame);
+    magnitude_threshold = 0.0
+
+    # Make path for results
+    mkpath("./results/$region")
+
     # Powerlaw CCDFS and FITS
     Plots.plot(xlabel = "k", ylabel = "P(k)")
     for side in sides
@@ -111,7 +120,7 @@ function ccdfs_and_fits(region)
 
     end
     plot!(size=(800,500), legend=:bottomleft)
-    Plots.savefig("./results/$region/$(region)_mag_$(magnitude_threshold)_ccdfs_and_fits.png")
+    Plots.savefig("./results/$region/$(region)_mag_$(magnitude_threshold)_best_fits.png")
 
 
     # Original data CCDFS
@@ -132,12 +141,15 @@ function ccdfs_and_fits(region)
         x_ccdf_original_data, y_ccdf_original_data = powlaw.ccdf(degrees)
         Plots.plot!(x_ccdf_original_data, y_ccdf_original_data, xscale=:log10, yscale=:log10, label="side=$side")
     end
-    Plots.savefig("./results/$region/$(region)_mag_$(magnitude_threshold)_ccdfs_original_data.png")
+    Plots.savefig("./results/$region/$(region)_mag_$(magnitude_threshold)_best_fits_original_data.png")
 
 end
 
 
+ccdfs_and_fits("romania")
 
+ccdfs_and_fits("california")
 
+ccdfs_and_fits("italy")
 
-
+ccdfs_and_fits("japan")
