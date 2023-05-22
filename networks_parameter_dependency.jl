@@ -154,10 +154,81 @@ function ccdfs_and_fits(region)
 end
 
 
-ccdfs_and_fits("romania")
+# ccdfs_and_fits("romania")
 
-ccdfs_and_fits("california")
+# ccdfs_and_fits("california")
 
-ccdfs_and_fits("italy")
+# ccdfs_and_fits("italy")
 
-ccdfs_and_fits("japan")
+# ccdfs_and_fits("japan")
+
+
+
+function ccdfs_and_fits_all_data(region)
+    # Based on parameter dependency, extract which side lengths are the best:
+    if region == "romania"
+        sides = [3, 4, 5];
+        # minimum_magnitudes = [0,1,2,3];
+    elseif region == "california"
+        sides = [1, 1.5, 2];
+        # minimum_magnitudes = [2,3];
+    elseif region == "italy"
+        sides = [5, 7.5, 10];
+        # minimum_magnitudes = [2,3];
+    elseif region == "japan"
+        sides = [3, 4, 5];
+        # minimum_magnitudes = [2,3,4];
+    end;
+
+    # Read data
+    path = "./data/"
+    filepath = path * region * ".csv"
+    df = CSV.read(filepath, DataFrame);
+    magnitude_threshold = 0.0
+
+    # Make path for results
+    mkpath("./results/$region")
+
+    # ALl data CCDFS and FITS
+    Plots.plot(xlabel = "k", ylabel = "P(k)")
+    for side in sides
+        df, df_cubes = region_cube_split(df,side=side)
+        MG = create_network(df, df_cubes)
+        degrees=[]
+        for i in 1:nv(MG)
+            push!(degrees, get_prop(MG, i, :degree))
+        end
+
+        # Powerlaw Fit
+        fit = powlaw.Fit(degrees);
+        alpha = round(fit.alpha,digits=4)
+        xmin = round(fit.xmin,digits=4)
+
+        # CCDF of data truncated
+        x_ccdf, y_ccdf = fit.ccdf()
+
+        x_ccdf_original_data, y_ccdf_original_data = powlaw.ccdf(degrees)
+        Plots.scatter!(x_ccdf_original_data, y_ccdf_original_data, xscale=:log10, yscale=:log10, 
+                        label="side=$side, alpha=$alpha, xmin=$xmin", markersize=3, alpha=0.8)
+
+
+        fit_degrees_power_law = fit.power_law.plot_ccdf()[:lines][1]
+        x_powlaw, y_powlaw = fit_degrees_power_law[:get_xdata](), fit_degrees_power_law[:get_ydata]()
+
+        Plots.plot!(x_powlaw, y_ccdf_original_data[end-length(x_ccdf)] .* y_powlaw, xscale=:log10, yscale=:log10, 
+                        label="", color=:red, linestyle=:dash, linewidth=3) 
+
+
+    end
+    plot!(size=(800,500), legend=:bottomleft)
+    Plots.savefig("./results/$region/$(region)_mag_$(magnitude_threshold)_best_fits_all_data.png")
+
+end
+
+ccdfs_and_fits_all_data("romania")
+
+ccdfs_and_fits_all_data("california")
+
+ccdfs_and_fits_all_data("italy")
+
+ccdfs_and_fits_all_data("japan")
