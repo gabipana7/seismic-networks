@@ -80,6 +80,15 @@ function ccdfs_and_fits(region)
         # minimum_magnitudes = [2,3,4];
     end;
 
+    # Read data
+    path = "./data/"
+    filepath = path * region * ".csv"
+    df = CSV.read(filepath, DataFrame);
+    magnitude_threshold = 0.0
+
+    # Make path for results
+    mkpath("./results/$region")
+
     # Powerlaw CCDFS and FITS
     Plots.plot(xlabel = "k", ylabel = "P(k)")
     for side in sides
@@ -111,10 +120,10 @@ function ccdfs_and_fits(region)
 
     end
     plot!(size=(800,500), legend=:bottomleft)
-    Plots.savefig("./results/$region/$(region)_mag_$(magnitude_threshold)_ccdfs_and_fits.png")
+    Plots.savefig("./results/$region/$(region)_mag_$(magnitude_threshold)_best_fits.png")
 
 
-    # Original data CCDFS
+    # Original data CCDFS and FITS
     Plots.plot(xlabel = "k", ylabel = "P(k)")
     for side in sides
         df, df_cubes = region_cube_split(df,side=side)
@@ -128,16 +137,27 @@ function ccdfs_and_fits(region)
             # push!(outdegrees, get_prop(MG, i, :outdegree))
         end
         
-        # fit_degrees = powlaw.Fit(degrees)
+        fit = powlaw.Fit(degrees)
+        x_ccdf, y_ccdf = fit.ccdf()
+        Plots.plot(xlabel = "k", ylabel = "P(k)")
+
         x_ccdf_original_data, y_ccdf_original_data = powlaw.ccdf(degrees)
-        Plots.plot!(x_ccdf_original_data, y_ccdf_original_data, xscale=:log10, yscale=:log10, label="side=$side")
+        Plots.scatter!(x_ccdf_original_data, y_ccdf_original_data, xscale=:log10, yscale=:log10, label="side=$side, alpha=$alpha, xmin=$xmin", markersize=3, alpha=0.8)
+
+        # Theoretical power_law over all data
+        fit_degrees_power_law = fit.power_law.plot_pdf()[:lines][1]
+        x_powlaw, y_powlaw = fit_degrees_power_law[:get_xdata](), fit_degrees_power_law[:get_ydata]()
+        Plots.plot!(x_powlaw, y_ccdf_original_data[end-length(x_ccdf)] .* y_powlaw, xscale=:log10, yscale=:log10, label="", color=:black, linestyle=:dash, linewidth=3) 
     end
-    Plots.savefig("./results/$region/$(region)_mag_$(magnitude_threshold)_ccdfs_original_data.png")
+    Plots.savefig("./results/$region/$(region)_mag_$(magnitude_threshold)_best_fits_original_data.png")
 
 end
 
 
+ccdfs_and_fits("romania")
 
+ccdfs_and_fits("california")
 
+ccdfs_and_fits("italy")
 
-
+ccdfs_and_fits("japan")

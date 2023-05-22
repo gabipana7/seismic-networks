@@ -34,3 +34,5 @@ docs/site/
 *.jpg
 *.jpeg
 *.webp
+
+*.history
