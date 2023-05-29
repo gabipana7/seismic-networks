@@ -1,11 +1,11 @@
 echo `date`
-julia --project motifs_triangle_analysis_all.jl california meanenergy &
-julia --project motifs_triangle_analysis_all.jl japan meanenergy &
-julia --project motifs_triangle_analysis_all.jl italy meanenergy &
-julia --project motifs_triangle_analysis_all.jl romania meanenergy &
-# julia --project motifs_tetrahedron_analysis_all.jl california &
-# julia --project motifs_tetrahedron_analysis_all.jl japan &
-# julia --project motifs_tetrahedron_analysis_all.jl italy &
-# julia --project motifs_tetrahedron_analysis_all.jl romania &
+# julia --project motifs_analysis_all_data.jl romania totalenergy &
+# julia --project motifs_analysis_all_data.jl romania meanenergy &
+# julia --project motifs_analysis_all_data.jl california meanenergy &
+julia --project motifs_analysis_all_data.jl japan meanenergy &
+julia --project motifs_analysis_all_data.jl italy meanenergy &
+# julia --project motifs_analysis_all_data.jl california totalenergy &
+julia --project motifs_analysis_all_data.jl japan totalenergy &
+julia --project motifs_analysis_all_data.jl italy totalenergy &
 wait # do not return before background tasks are complete
 echo `date`
