@@ -33,32 +33,32 @@ function analize_motifs_triangle(region, weighted_by)
     # Make path for results
     mkpath("./motifs/$weighted_by/$region")
 
-    # Based on parameter dependency, extract which side lengths are the best:
+    # Based on parameter dependency, extract which cell_size lengths are the best:
     if region == "romania"
-        sides = [3, 4, 5];
+        cell_sizes = [3, 4, 5];
         minimum_magnitudes = [0,1,2,3];
     elseif region == "california"
-        sides = [2.0];
+        cell_sizes = [2.0];
         minimum_magnitudes = [2,3];
     elseif region == "italy"
-        sides = [5, 7.5, 10];
+        cell_sizes = [5, 7.5, 10];
         minimum_magnitudes = [2,3];
     elseif region == "japan"
-        sides = [4, 5];
+        cell_sizes = [4, 5];
         minimum_magnitudes = [2,3,4];
     end;
 
-    for side in sides
+    for cell_size in cell_sizes
         for minimum_magnitude in minimum_magnitudes
             # Filter by magnitude
             df_filtered = df[df.Magnitude .> minimum_magnitude,:] 
 
             # Split into cubes
-            df_filtered, df_filtered_cubes = region_cube_split(df_filtered,side=side,energyRelease=true);
+            df_filtered, df_filtered_cubes = region_cube_split(df_filtered,cell_size=cell_size,energyRelease=true);
 
             # Get the motif
-            network_target_path = "./networks/$(region)/side_$(string(side))km/"
-            motif_filename = "motif$(motif)_$(region)_side_$(string(side))km_minmag_$(string(minimum_magnitude)).csv"
+            network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
+            motif_filename = "motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).csv"
 
             # motifs = CSV.read(network_target_path * motif_filename, DataFrame);
             motifs = readdlm(network_target_path * motif_filename, ',', Int64);
@@ -87,7 +87,7 @@ function analize_motifs_triangle(region, weighted_by)
             # CCDF of all data
             x_ccdf_original_data, y_ccdf_original_data = powlaw.ccdf(area_weight)
             Plots.scatter(x_ccdf_original_data, y_ccdf_original_data, xscale=:log10, yscale=:log10, 
-                            label="side=$side, alpha=$alpha, xmin=$xmin", markersize=3, alpha=0.7)
+                            label="cell_size=$cell_size, alpha=$alpha, xmin=$xmin", markersize=3, alpha=0.7)
 
             # FIT shifted over all data
             fit_power_law = fit_area_weight.power_law.plot_ccdf()[:lines][1]
@@ -97,7 +97,7 @@ function analize_motifs_triangle(region, weighted_by)
                             label="", color=:red, linestyle=:dash, linewidth=3) 
 
             plot!(size=(900,600), legend=:bottomleft)
-            Plots.savefig("./motifs/$weighted_by/$region/motif$(motif)_$(region)_side_$(string(side))km_minmag_$(string(minimum_magnitude))_area_weight_$weighted_by.png")
+            Plots.savefig("./motifs/$weighted_by/$region/motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude))_area_weight_$weighted_by.png")
 
 
         end
@@ -121,32 +121,32 @@ function analize_motifs_tetrahedron(region, weighted_by)
     # Make path for results
     mkpath("./motifs/$weighted_by/$region")
 
-    # Based on parameter dependency, extract which side lengths are the best:
+    # Based on parameter dependency, extract which cell_size lengths are the best:
     if region == "romania"
-        sides = [3, 4, 5];
+        cell_sizes = [3, 4, 5];
         minimum_magnitudes = [0,1,2,3];
     elseif region == "california"
-        sides = [2.0];
+        cell_sizes = [2.0];
         minimum_magnitudes = [2,3];
     elseif region == "italy"
-        sides = [10.0];
+        cell_sizes = [10.0];
         minimum_magnitudes = [2,3];
     elseif region == "japan"
-        sides = [4,5];
+        cell_sizes = [4,5];
         minimum_magnitudes = [2,3,4];
     end;
 
-    for side in sides
+    for cell_size in cell_sizes
         for minimum_magnitude in minimum_magnitudes
 
             df_filtered = df[df.Magnitude .> minimum_magnitude,:] 
 
             # Split into cubes
-            df_filtered, df_filtered_cubes = region_cube_split(df_filtered,side=side,energyRelease=true);
+            df_filtered, df_filtered_cubes = region_cube_split(df_filtered,cell_size=cell_size,energyRelease=true);
 
             # Get the motif
-            network_target_path = "./networks/$(region)/side_$(string(side))km/"
-            motif_filename = "motif$(motif)_$(region)_side_$(string(side))km_minmag_$(string(minimum_magnitude)).csv"
+            network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
+            motif_filename = "motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).csv"
 
             # motifs = CSV.read(network_target_path * motif_filename, DataFrame);
             motifs = readdlm(network_target_path * motif_filename, ',', Int64);
@@ -175,7 +175,7 @@ function analize_motifs_tetrahedron(region, weighted_by)
             # CCDF of all data
             x_ccdf_original_data, y_ccdf_original_data = powlaw.ccdf(volume_weight)
             Plots.scatter(x_ccdf_original_data, y_ccdf_original_data, xscale=:log10, yscale=:log10, 
-                            label="side=$side, alpha=$alpha, xmin=$xmin", markersize=3, alpha=0.7)
+                            label="cell_size=$cell_size, alpha=$alpha, xmin=$xmin", markersize=3, alpha=0.7)
 
             # FIT shifted over all data
             fit_power_law = fit_volume_weight.power_law.plot_ccdf()[:lines][1]
@@ -185,7 +185,7 @@ function analize_motifs_tetrahedron(region, weighted_by)
                             label="", color=:red, linestyle=:dash, linewidth=3) 
 
             plot!(size=(900,600), legend=:bottomleft)                
-            Plots.savefig("./motifs/$weighted_by/$region/motif$(motif)_$(region)_side_$(string(side))km_minmag_$(string(minimum_magnitude))_volume_weight_$weighted_by.png")
+            Plots.savefig("./motifs/$weighted_by/$region/motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude))_volume_weight_$weighted_by.png")
 
         end
     end

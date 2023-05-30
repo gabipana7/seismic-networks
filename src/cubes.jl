@@ -1,7 +1,7 @@
 using DataFrames, Geodesy
 
 # This function splits the seismic region in equally sized cubes
-function region_cube_split(df; side, energyRelease=false)
+function region_cube_split(df; cell_size, energyRelease=false)
 
     # Minimum and maximum of every dimension
     minLat=minimum(df.Latitude)
@@ -13,32 +13,32 @@ function region_cube_split(df; side, energyRelease=false)
 
     # Number of cubes needed for each dimension
     # Use ceil() to round up to integer (in order to encompass whole region)
-    # (some dimensions will not be perfectly divisible with the side chosen for cubes)   
+    # (some dimensions will not be perfectly divisible with the cell_size chosen for cubes)   
 
     # Latitude
     x0_lla = LLA(minLat,minLon,-minDepth)
     xf_lla = LLA(maxLat,minLon,-minDepth)
     lat_dist_in_km = Geodesy.euclidean_distance(xf_lla,x0_lla) / 1000 # eucl_dist returns in meters
     # xreal, without ceiling, used when assigning earthquakes to certain cubes
-    xreal = lat_dist_in_km / side
+    xreal = lat_dist_in_km / cell_size
     # Actual number of cubes (integer) on Latitude distance to cover whole volume
-    x = ceil(Int, lat_dist_in_km / side)
+    x = ceil(Int, lat_dist_in_km / cell_size)
 
     # Longitude
     y0_lla = LLA(minLat,minLon,-minDepth)
     yf_lla = LLA(minLat,maxLon,-minDepth)
     lon_dist_in_km = Geodesy.euclidean_distance(yf_lla,y0_lla) / 1000
     # yreal, without ceiling, used when assigning earthquakes to certain cubes
-    yreal = lon_dist_in_km / side
+    yreal = lon_dist_in_km / cell_size
     # Actual number of cubes (integer) on Longitude distance to cover whole volume
-    y = ceil(Int, lon_dist_in_km / side)
+    y = ceil(Int, lon_dist_in_km / cell_size)
 
     # Depth (already in km)
     # Number of cubes on depth distance to cover whole volume
     # zreal, without ceiling, used when assigning earthquakes to certain cubes
-    zreal = (maxDepth-minDepth) / side
+    zreal = (maxDepth-minDepth) / cell_size
     # Actual number of cubes (integer) on Depth distance to cover whole volume
-    z = ceil(Int, (maxDepth-minDepth) / side)
+    z = ceil(Int, (maxDepth-minDepth) / cell_size)
 
 
     # Calculating cube Index for every value in dataframe for each dimension
@@ -63,7 +63,7 @@ function region_cube_split(df; side, energyRelease=false)
     # A half cube value in every direction
     x_half_cube = (maxLat-minLat)/(2*xreal)
     y_half_cube = (maxLon-minLon)/(2*yreal)
-    # For z Should always be side/2 (side=5 => 2.5 km)
+    # For z Should always be cell_size/2 (cell_size=5 => 2.5 km)
     z_half_cube = (maxDepth-minDepth)/(2*zreal)
 
     # Formula is: minimum + half value * (2n-1) where n is a cube index in that direction

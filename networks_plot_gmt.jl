@@ -8,7 +8,7 @@ include("./src/cubes.jl")
 include("./src/network.jl")
 
 
-function networks_plot_gmt(region,side,minimum_magnitude,motif)
+function networks_plot_gmt(region,cell_size,minimum_magnitude,motif)
 
     # Read data
     path = "./data/"
@@ -19,7 +19,7 @@ function networks_plot_gmt(region,side,minimum_magnitude,motif)
     df_filtered = df[df.Magnitude .> minimum_magnitude,:] 
 
     # Split into cubes
-    df_filtered, df_filtered_cubes = region_cube_split(df_filtered,side=side,energyRelease=true);
+    df_filtered, df_filtered_cubes = region_cube_split(df_filtered,cell_size=cell_size,energyRelease=true);
 
     # Create network
     MG = create_network(df_filtered, df_filtered_cubes)
@@ -74,8 +74,8 @@ function networks_plot_gmt(region,side,minimum_magnitude,motif)
     alpha=50, view=perspective)
 
     if motif=="Triangle"
-        network_target_path ="./networks/$region/side_$(side)km/"
-        motif_filename = "motif$(motif)_$(region)_side_$(side)km_minmag_$(minimum_magnitude).csv"
+        network_target_path ="./networks/$region/cell_size_$(cell_size)km/"
+        motif_filename = "motif$(motif)_$(region)_cell_size_$(cell_size)km_minmag_$(minimum_magnitude).csv"
 
         motifs = readdlm(network_target_path * motif_filename, ',', Int64);
 
@@ -94,7 +94,7 @@ function networks_plot_gmt(region,side,minimum_magnitude,motif)
     # Relief map
     grdview!(relief_map, proj=:merc, surftype=(image=1000,), 
     cmap=C_map, zsize=0.5, alpha=10 ,yshift=5.6, view=perspective,
-    savefig="./networks/$region/side_$(side)km/$(region)_side_$(side)km_minmag_$(minimum_magnitude).png", 
+    savefig="./networks/$region/cell_size_$(cell_size)km/$(region)_cell_size_$(cell_size)km_minmag_$(minimum_magnitude).png", 
     show=true)
 
 

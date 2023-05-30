@@ -24,13 +24,13 @@ pushfirst!(PyVector(pyimport("sys")."path"), nemomapdir)
 
 
 motif = "Triangle"
-for side in sides
+for cell_size in cell_sizes
     # select target path for networks
-    network_target_path = "./networks/$(region)/side_$(string(side))km/"
+    network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
 
     for minimum_magnitude in [4, 3, 2]
-        network_target_path = "./networks/$(region)/side_$(string(side))km/"
-        network_filename = "$(region)_side_$(string(side))km_minmag_$(string(minimum_magnitude)).txt"
+        network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
+        network_filename = "$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).txt"
         inputName = network_target_path * network_filename
         queryName = "query$(motif).txt"
 
@@ -64,7 +64,7 @@ for side in sides
         # stats =  motifs_discovery(inputName,queryName)
 
         # Move csv and rename
-        motif_filename = "motif$(motif)_$(region)_side_$(string(side))km_minmag_$(string(minimum_magnitude)).csv"
+        motif_filename = "motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).csv"
         mv("output.csv", network_target_path * motif_filename)
 
     end
@@ -72,13 +72,13 @@ end
 
 
 motif = "Tetrahedron"
-for side in sides
+for cell_size in cell_sizes
     # select target path for networks
-    network_target_path = "./networks/$(region)/side_$(string(side))km/"
+    network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
 
     for minimum_magnitude in [4, 3, 2]
-        network_target_path = "./networks/$(region)/side_$(string(side))km/"
-        network_filename = "$(region)_side_$(string(side))km_minmag_$(string(minimum_magnitude)).txt"
+        network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
+        network_filename = "$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).txt"
         inputName = network_target_path * network_filename
         queryName = "query$(motif).txt"
 
@@ -112,7 +112,7 @@ for side in sides
         # stats =  motifs_discovery(inputName,queryName)
 
         # Move csv and rename
-        motif_filename = "motif$(motif)_$(region)_side_$(string(side))km_minmag_$(string(minimum_magnitude)).csv"
+        motif_filename = "motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).csv"
         mv("output.csv", network_target_path * motif_filename)
 
     end
@@ -131,11 +131,11 @@ end
 # # TESTS #
 
 # motif = "Triangle"
-# side = 5
+# cell_size = 5
 # minimum_magnitude = 3
 
-# network_target_path = "./networks/$(region)/side_$(string(side))km/"
-# network_filename = "$(region)_side_$(string(side))km_minmag_$(string(minimum_magnitude)).txt"
+# network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
+# network_filename = "$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).txt"
 # inputName = network_target_path * network_filename
 # queryName = "query$(motif).txt"
 
@@ -148,7 +148,7 @@ end
 # stats =  motifs_discovery(inputName,queryName)
 
 # # Move csv and rename
-# motif_filename = "motif$(motif)_$(region)_side_$(string(side))km_minmag_$(string(minimum_magnitude)).csv"
+# motif_filename = "motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).csv"
 # mv("output.csv", network_target_path * motif_filename)
 
 # # TESTS #
