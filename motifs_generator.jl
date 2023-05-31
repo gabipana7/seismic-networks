@@ -22,7 +22,7 @@ pushfirst!(PyVector(pyimport("sys")."path"), nemomapdir)
 # Include motifsdiscovery python code
 @pyinclude("./src/nemomap/motifsdiscovery.py")
 
-region = ARGS[1]
+region = "california"
 
 # Based on parameter dependency, extract which cell_size lengths are the best:
 
@@ -42,13 +42,16 @@ region = ARGS[1]
 
 if region == "romania"
     cell_sizes = [3.5, 4.5, 5.5];
-    minimum_magnitudes = [3,2,1,0];
+    minimum_magnitudes = [4,3,2,1,0]; #[4,3,2,1,0];
+elseif region == "california"
+    cell_sizes = [1.0, 1.5, 2.0];
+    minimum_magnitudes = [1,0]; #[4,3,2,1,0];
 elseif region == "italy"
     cell_sizes = [4.0, 4.5, 5.5, 6.0];
-    minimum_magnitudes = [3,2];
+    minimum_magnitudes = [1,0]; # [4,3,2,1,0];
 elseif region == "japan"
-    cell_sizes = [2.5, 3.5];
-    minimum_magnitudes = [5,4,3,2];
+    cell_sizes = [2.5, 3.0, 3.5, 4.0, 5.0];
+    minimum_magnitudes = [2]; #[5,4,3,2];
 end
 
 
@@ -64,11 +67,9 @@ for cell_size in cell_sizes
         inputName = network_target_path * network_filename
         queryName = "query$(motif).txt"
 
-
         stats = py"getMotif"(inputName,queryName)
 
         py"""
-
         import ast, os, csv
 
         fileMotif=open("./output.txt")
@@ -115,7 +116,6 @@ for cell_size in cell_sizes
         stats = py"getMotif"(inputName,queryName)
 
         py"""
-
         import ast, os, csv
 
         fileMotif=open("./output.txt")
@@ -138,7 +138,6 @@ for cell_size in cell_sizes
             wr = csv.writer(f)
             wr.writerows(newmotifs)   
         """
-
         # stats =  motifs_discovery(inputName,queryName)
 
         # Move csv and rename
