@@ -22,13 +22,43 @@ pushfirst!(PyVector(pyimport("sys")."path"), nemomapdir)
 # Include motifsdiscovery python code
 @pyinclude("./src/nemomap/motifsdiscovery.py")
 
+region = ARGS[1]
+
+# Based on parameter dependency, extract which cell_size lengths are the best:
+
+# if region == "romania"
+#     cell_sizes = [3.5, 4.0, 4.5, 5.0, 5.5];
+#     # minimum_magnitudes = [0,1,2,3];
+# elseif region == "california"
+#     cell_sizes = [1.0, 1.5, 2.0];
+#     # minimum_magnitudes = [2,3];
+# elseif region == "italy"
+#     cell_sizes = [4.0, 4.5, 5.0, 5.5, 6.0];
+#     # minimum_magnitudes = [2,3];
+# elseif region == "japan"
+#     cell_sizes = [2.5, 3.0, 3.5, 4.0, 5.0];
+#     # minimum_magnitudes = [2,3,4,5];
+# end;
+
+if region == "romania"
+    cell_sizes = [3.5, 4.5, 5.5];
+    minimum_magnitudes = [3,2,1,0];
+elseif region == "italy"
+    cell_sizes = [4.0, 4.5, 5.5, 6.0];
+    minimum_magnitudes = [3,2];
+elseif region == "japan"
+    cell_sizes = [2.5, 3.5];
+    minimum_magnitudes = [5,4,3,2];
+end
+
+
 
 motif = "Triangle"
 for cell_size in cell_sizes
     # select target path for networks
     network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
 
-    for minimum_magnitude in [4, 3, 2]
+    for minimum_magnitude in minimum_magnitudes
         network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
         network_filename = "$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).txt"
         inputName = network_target_path * network_filename
@@ -76,7 +106,7 @@ for cell_size in cell_sizes
     # select target path for networks
     network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
 
-    for minimum_magnitude in [4, 3, 2]
+    for minimum_magnitude in minimum_magnitudes
         network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
         network_filename = "$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).txt"
         inputName = network_target_path * network_filename

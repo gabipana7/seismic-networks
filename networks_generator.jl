@@ -13,16 +13,31 @@ df = CSV.read(filepath, DataFrame);
 
 
 # Based on parameter dependency, extract which cell_size lengths are the best:
-if region == "romania"
-    cell_sizes = [3, 4, 5];
-elseif region == "california"
-    cell_sizes = [1.5, 2];
-elseif region == "italy"
-    cell_sizes = [5, 7.5, 10];
-elseif region == "japan"
-    cell_sizes = [3, 4, 5];
-end
 
+# if region == "romania"
+#     cell_sizes = [3.5, 4.0, 4.5, 5.0, 5.5];
+#     # minimum_magnitudes = [0,1,2,3];
+# elseif region == "california"
+#     cell_sizes = [1.0, 1.5, 2.0];
+#     # minimum_magnitudes = [2,3];
+# elseif region == "italy"
+#     cell_sizes = [4.0, 4.5, 5.0, 5.5, 6.0];
+#     # minimum_magnitudes = [2,3];
+# elseif region == "japan"
+#     cell_sizes = [2.5, 3.0, 3.5, 4.0, 5.0];
+#     # minimum_magnitudes = [2,3,4,5];
+# end;
+
+if region == "romania"
+    cell_sizes = [3.5, 4.5, 5.5];
+    minimum_magnitudes = [0,1,2,3];
+elseif region == "italy"
+    cell_sizes = [4.0, 4.5, 5.5, 6.0];
+    minimum_magnitudes = [2,3];
+elseif region == "japan"
+    cell_sizes = [2.5, 3.5];
+    minimum_magnitudes = [2,3,4,5];
+end
 
 
 #######################################################################################################
