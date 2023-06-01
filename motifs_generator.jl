@@ -22,7 +22,7 @@ pushfirst!(PyVector(pyimport("sys")."path"), nemomapdir)
 # Include motifsdiscovery python code
 @pyinclude("./src/nemomap/motifsdiscovery.py")
 
-region = "california"
+region = "romania"
 
 # Based on parameter dependency, extract which cell_size lengths are the best:
 
@@ -41,8 +41,8 @@ region = "california"
 # end;
 
 if region == "romania"
-    cell_sizes = [3.5, 4.5, 5.5];
-    minimum_magnitudes = [4,3,2,1,0]; #[4,3,2,1,0];
+    cell_sizes = [3.0, 3.5];
+    minimum_magnitudes = [4,3,2]; #[4,3,2,1,0];
 elseif region == "california"
     cell_sizes = [1.0, 1.5, 2.0];
     minimum_magnitudes = [1,0]; #[4,3,2,1,0];
@@ -53,6 +53,8 @@ elseif region == "japan"
     cell_sizes = [2.5, 3.0, 3.5, 4.0, 5.0];
     minimum_magnitudes = [2]; #[5,4,3,2];
 end
+
+
 
 
 
@@ -71,6 +73,7 @@ for cell_size in cell_sizes
 
         py"""
         import ast, os, csv
+
 
         fileMotif=open("./output.txt")
         linesMotif = fileMotif.readlines()
