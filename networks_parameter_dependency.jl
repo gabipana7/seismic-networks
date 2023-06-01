@@ -50,8 +50,8 @@ function networks_parameter_dependency(region; magnitude_threshold=0.0)
 
     end
 
-    results = DataFrame([cube_cell_sizes, degrees_alpha, degrees_xmin, marker_size], ["cube_cell_sizes", "degrees_alpha", "degrees_xmin", "marker_size"])
-    CSV.write("./results/$region/$(region)_minmag_$(magnitude_threshold)_alpha_xmin_dependency_cell_size.csv", results, delim=",", header=false);
+    results = DataFrame([cube_cell_sizes, degrees_alpha, degrees_xmin, marker_size], ["cell_size", "alpha", "xmin", "KS"])
+    CSV.write("./results/$region/$(region)_minmag_$(magnitude_threshold)_alpha_xmin_dependency_cell_size.csv", results, delim=",", header=true);
 
 end
 
@@ -73,13 +73,13 @@ function networks_parameter_dependency_plot(region; magnitude_threshold=0.0, goo
         elseif region =="japan"
             multiplier_for_goodness_of_fit = 25
         end
-        marker_size_log = 10 .^ (multiplier_for_goodness_of_fit .* results.marker_size)
+        marker_size_log = 10 .^ (multiplier_for_goodness_of_fit .* results.KS)
 
-        p1 = Plots.scatter(collect(cube_cell_sizes),degrees_alpha, xlabel="cube size", ylabel="alpha", markersize = marker_size_log);
+        p1 = Plots.scatter(results.cell_size, results.alpha, xlabel="cube size", ylabel="alpha", markersize = marker_size_log);
         # vspan!([2,13], linecolor = :grey, fillcolor = :grey, alpha=0.3, label="")
         # hspan!([2,3], linecolor = :red, fillcolor = :red, alpha=0.3, label="")
         # hspan!([1.5,2], linecolor = :red, fillcolor = :red, alpha=0.2, label="")
-        p2 = Plots.scatter(collect(cube_cell_sizes),degrees_xmin, xlabel="cube size", ylabel="xmin", markersize = marker_size_log);
+        p2 = Plots.scatter(results.cell_size, results.xmin, xlabel="cube size", ylabel="xmin", markersize = marker_size_log);
         # vspan!([2,13], linecolor = :grey, fillcolor = :grey, alpha=0.3, label="")
         fig = Plots.plot(p1,p2, layout=(1,2), figsize=(12,17))
         Plots.plot!(fig, size=(1000,400))
@@ -88,11 +88,11 @@ function networks_parameter_dependency_plot(region; magnitude_threshold=0.0, goo
 
 
     # No goodness of fit based on KS
-    p1 = Plots.scatter(collect(cube_cell_sizes),degrees_alpha, xlabel="cube size", ylabel="alpha");
+    p1 = Plots.scatter(results.cell_size, results.alpha, xlabel="cube size", ylabel="alpha");
     # vspan!([2,13], linecolor = :grey, fillcolor = :grey, alpha=0.3, label="")
     # hspan!([2,3], linecolor = :red, fillcolor = :red, alpha=0.3, label="")
     # hspan!([1.5,2], linecolor = :red, fillcolor = :red, alpha=0.2, label="")
-    p2 = Plots.scatter(collect(cube_cell_sizes),degrees_xmin, xlabel="cube size", ylabel="xmin");
+    p2 = Plots.scatter(results.cell_size, results.xmin, xlabel="cube size", ylabel="xmin");
     # vspan!([2,13], linecolor = :grey, fillcolor = :grey, alpha=0.3, label="")
     fig = Plots.plot(p1,p2, layout=(1,2), figsize=(12,17))
     Plots.plot!(fig, size=(1000,400))
