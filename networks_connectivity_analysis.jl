@@ -13,6 +13,40 @@ include("./src/network.jl")
 @pyimport powerlaw as powlaw
 
 
+# if region == "romania"
+#     cell_sizes = [3.5, 4.0, 4.5, 5.0, 5.5];
+#     # minimum_magnitudes = [0,1,2,3];
+# elseif region == "california"
+#     cell_sizes = [1.0, 1.5, 2.0];
+#     # minimum_magnitudes = [2,3];
+# elseif region == "italy"
+#     cell_sizes = [4.0, 4.5, 5.0, 5.5, 6.0];
+#     # minimum_magnitudes = [2,3];
+# elseif region == "japan"
+#     cell_sizes = [2.5, 3.0, 3.5, 4.0, 5.0];
+#     # minimum_magnitudes = [2,3,4,5];
+# end;
+
+function connectivity_analysis_cairo(region)
+    if region == "romania"
+        # cell_sizes = [3.5, 4.0, 4.5, 5.0, 5.5];
+        cell_sizes = [3.5,  4.5,  5.5];
+        # minimum_magnitudes = [0,1,2,3];
+    elseif region == "california"
+        cell_sizes = [1.0, 1.5, 2.0];
+        # minimum_magnitudes = [2,3];
+    elseif region == "italy"
+        cell_sizes = [4.0, 4.5, 5.0, 5.5, 6.0];
+        # minimum_magnitudes = [2,3];
+    elseif region == "japan"
+        cell_sizes = [2.5, 3.0, 3.5, 4.0, 5.0];
+        # minimum_magnitudes = [2,3,4,5];
+    end;
+
+end
+
+
+
 function connectivity_analysis(region)
     # Based on parameter dependency, extract which cell_size lengths are the best:
     if region == "romania"
