@@ -1,4 +1,3 @@
-
 using CSV, DataFrames, Dates
 using PyCall
 
@@ -50,8 +49,8 @@ elseif region == "italy"
     cell_sizes = [4.0, 4.5, 5.5, 6.0];
     minimum_magnitudes = [1,0]; # [4,3,2,1,0];
 elseif region == "japan"
-    cell_sizes = [2.5, 3.0, 3.5, 4.0, 5.0];
-    minimum_magnitudes = [2]; #[5,4,3,2];
+    cell_sizes = [3.0, 4.0, 5.0]; 
+    minimum_magnitudes = [5]; #[5,4,3,2];
 end
 
 
@@ -102,50 +101,51 @@ for cell_size in cell_sizes
 end
 
 
-motif = "Tetrahedron"
-for cell_size in cell_sizes
-    # select target path for networks
-    network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
 
-    for minimum_magnitude in minimum_magnitudes
-        network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
-        network_filename = "$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).txt"
-        inputName = network_target_path * network_filename
-        queryName = "query$(motif).txt"
+# motif = "Tetrahedron"
+# for cell_size in cell_sizes
+#     # select target path for networks
+#     network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
 
-        stats = py"getMotif"(inputName,queryName)
+#     for minimum_magnitude in minimum_magnitudes
+#         network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
+#         network_filename = "$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).txt"
+#         inputName = network_target_path * network_filename
+#         queryName = "query$(motif).txt"
 
-        py"""
-        import ast, os, csv
+#         stats = py"getMotif"(inputName,queryName)
 
-        fileMotif=open("./output.txt")
-        linesMotif = fileMotif.readlines()
+#         py"""
+#         import ast, os, csv
 
-        fileMotif.close()
-        os.remove('output.txt')
+#         fileMotif=open("./output.txt")
+#         linesMotif = fileMotif.readlines()
 
-        # Properly evaluate the Lines to get the Lists
-        motifNodes=[]
-        for item in linesMotif:
-            motifNodes.append(ast.literal_eval(item))
+#         fileMotif.close()
+#         os.remove('output.txt')
 
-        newmotifs=[]
-        for motifs in motifNodes:
-            res = [eval(i) for i in motifs]
-            newmotifs.append(res)
+#         # Properly evaluate the Lines to get the Lists
+#         motifNodes=[]
+#         for item in linesMotif:
+#             motifNodes.append(ast.literal_eval(item))
 
-        with open("output.csv", "w", newline='') as f:
-            wr = csv.writer(f)
-            wr.writerows(newmotifs)   
-        """
-        # stats =  motifs_discovery(inputName,queryName)
+#         newmotifs=[]
+#         for motifs in motifNodes:
+#             res = [eval(i) for i in motifs]
+#             newmotifs.append(res)
 
-        # Move csv and rename
-        motif_filename = "motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).csv"
-        mv("output.csv", network_target_path * motif_filename)
+#         with open("output.csv", "w", newline='') as f:
+#             wr = csv.writer(f)
+#             wr.writerows(newmotifs)   
+#         """
+#         # stats =  motifs_discovery(inputName,queryName)
 
-    end
-end
+#         # Move csv and rename
+#         motif_filename = "motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).csv"
+#         mv("output.csv", network_target_path * motif_filename)
+
+#     end
+# end
 
 
 
