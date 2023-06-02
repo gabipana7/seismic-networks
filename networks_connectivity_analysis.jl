@@ -185,11 +185,11 @@ function connectivity_analysis_histogram_cairo(region, cell_size)
 
     # Fit through truncated data
     # Must shift the y values from the theoretical powerlaw by the values of y of original data, but cut to the length of truncated data
-    ln1 = lines!(ax1, x_powlaw, y_ccdf_original_data[end-length(x_ccdf)] .* y_powlaw, label= L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)",
+    ln1 = lines!(ax1, x_powlaw, y_ccdf_original_data[end-length(x_ccdf)] .* y_powlaw,
         color=:red, linewidth=2.5) 
 
     axislegend(ax1, [sc1], [L"\text{cell\,size}=%$(cell_size)"], position = :rt, bgcolor = (:grey90, 0.25));
-    axislegend(ax1, [ln1], [L"\alpha=%$(alpha),\, x_{min}=%$(xmin)"], position = :lb, bgcolor = (:grey90, 0.25));
+    axislegend(ax1, [ln1], [L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)"], position = :lb, bgcolor = (:grey90, 0.25));
 
 
     ########################################### TRUNCATED
@@ -203,11 +203,11 @@ function connectivity_analysis_histogram_cairo(region, cell_size)
         color=(:midnightblue, 0.2), strokewidth=0.2, marker=:circle, markersize=13)
 
     # Fit through truncated data (re-normed)
-    ln2 = lines!(ax2, x_powlaw, y_powlaw, label= L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)",
+    ln2 = lines!(ax2, x_powlaw, y_powlaw,
             color=:red, linewidth=2.5) 
 
     axislegend(ax2, [sc2], [L"\text{cell\,size}=%$(cell_size)"], position = :rt, bgcolor = (:grey90, 0.25));
-    axislegend(ax2, [ln2], [L"\alpha=%$(alpha),\, x_{min}=%$(xmin)"], position = :lb, bgcolor = (:grey90, 0.25));    
+    axislegend(ax2, [ln2], [L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)"], position = :lb, bgcolor = (:grey90, 0.25));    
     
 
     ########################################### HISTOGRAM

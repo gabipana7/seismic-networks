@@ -1,20 +1,18 @@
 using CSV, DataFrames
 using FileIO, Dates
-using Graphs, MetaGraphs
-using DataStructures
 using PyCall
-using Plots
 using DelimitedFiles
-using StatsBase
-using LinearAlgebra
+using CairoMakie
+# using StatsBase
+# using LinearAlgebra
 
 include("./src/cubes.jl")
-include("./src/network.jl")
+# include("./src/network.jl")
 include("./src/motifs_analysis.jl")
 
 @pyimport powerlaw as powlaw
 
-ENV["GKSwstype"]="nul"
+# ENV["GKSwstype"]="nul"
 
 # Triangles Analysis
 function analize_motifs_triangle(region, weighted_by)
@@ -35,32 +33,30 @@ function analize_motifs_triangle(region, weighted_by)
 
     # Based on parameter dependency, extract which cell_size lengths are the best:
     if region == "romania"
-        cell_sizes = [3, 4, 5];
-        minimum_magnitudes = [0,1,2,3];
+        cell_sizes = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5];
+        minimum_magnitudes = [3,2,1,0];
     elseif region == "california"
-        cell_sizes = [2.0];
-        minimum_magnitudes = [2,3];
+        cell_sizes = [1.0, 1.5, 2.0];
+        minimum_magnitudes = [3,2,1,0];
     elseif region == "italy"
-        cell_sizes = [5, 7.5, 10];
-        minimum_magnitudes = [2,3];
+        cell_sizes = [4.0, 4.5, 5.0, 5.5, 6.0, 7.5, 10.0];
+        minimum_magnitudes = [3,2,1,0];
     elseif region == "japan"
-        cell_sizes = [4, 5];
-        minimum_magnitudes = [2,3,4];
-    end;
+        cell_sizes = [2.5, 3.0, 3.5, 4.0, 5.0];
+        minimum_magnitudes = [5,4,3,2];
+    end
 
     for cell_size in cell_sizes
         for minimum_magnitude in minimum_magnitudes
+            #############################################################################################################################################################
             # Filter by magnitude
             df_filtered = df[df.Magnitude .> minimum_magnitude,:] 
-
             # Split into cubes
             df_filtered, df_filtered_cubes = region_cube_split(df_filtered,cell_size=cell_size,energyRelease=true);
 
             # Get the motif
             network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
             motif_filename = "motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).csv"
-
-            # motifs = CSV.read(network_target_path * motif_filename, DataFrame);
             motifs = readdlm(network_target_path * motif_filename, ',', Int64);
             
             # Energy and areas calculator
@@ -75,34 +71,96 @@ function analize_motifs_triangle(region, weighted_by)
                     push!(area_weight, areas[key]/motif_energy[key][weight_key])
                 end
             end
-
+            #############################################################################################################################################################
+            # THE FIT
             # Powerlaw fit
-            fit_area_weight = powlaw.Fit(area_weight);
-            alpha = round(fit_area_weight.alpha,digits=4)
-            xmin = round(fit_area_weight.xmin,digits=6)
+            fit = powlaw.Fit(area_weight);
+            alpha = fit.alpha
+            xmin = fit.xmin
+            KS = fit.power_law.KS(data=area_weight)
 
-            # CCDF of FIT
-            x_ccdf, y_ccdf = fit_area_weight.ccdf()
+            # Create a results file (if it does not exist) and save it empty
+            results_file = "results" * motif * ".csv"
+            if isfile("./motifs/$weighted_by/$region/$results_file")
+                println("file exists")
+                # Open results file to temporary dataframe
+                results = CSV.read("./motifs/$weighted_by/$region/$results_file", DataFrame)
+                # Append results to temporary dataframe
+                push!(results, [weighted_by, region, motif, cell_size, minimum_magnitude, alpha, xmin, KS])
+                # Save the temporary dataframe as results file
+                CSV.write("./motifs/$weighted_by/$region/$results_file", results, delim=",", header=true); 
+                # Close results file
+            else
+                results = DataFrame([Any[], Any[], Any[], Any[], Any[], Any[], Any[], Any[]], ["weighted_by","region","motif","cell_size","minmag","alpha","xmin","KS"])
+                push!(results, [weighted_by, region, motif, cell_size, minimum_magnitude, alpha, xmin, KS])
+                CSV.write("./motifs/$weighted_by/$region/$results_file", results, delim=",", header=true); 
+            end
+            #############################################################################################################################################################
 
-            # CCDF of all data
-            x_ccdf_original_data, y_ccdf_original_data = powlaw.ccdf(area_weight)
-            Plots.scatter(x_ccdf_original_data, y_ccdf_original_data, xscale=:log10, yscale=:log10, 
-                            label="cell_size=$cell_size, alpha=$alpha, xmin=$xmin", markersize=3, alpha=0.7)
+            #############################################################################################################################################################
+            # THE PLOTS 
+            # CCDF of truncated data (fitted), x and y values
+            x_ccdf, y_ccdf = fit.ccdf()
 
-            # FIT shifted over all data
-            fit_power_law = fit_area_weight.power_law.plot_ccdf()[:lines][1]
+            # The fit (from theoretical power_law)
+            fit_power_law = fit.power_law.plot_ccdf()[:lines][1]
             x_powlaw, y_powlaw = fit_power_law[:get_xdata](), fit_power_law[:get_ydata]()
 
-            Plots.plot!(x_powlaw, y_ccdf_original_data[end-length(x_ccdf)] .* y_powlaw, xscale=:log10, yscale=:log10, 
-                            label="", color=:red, linestyle=:dash, linewidth=3) 
+            # Round up the data
+            alpha = round(alpha, digits=2)
+            xmin = round(xmin, digits=5)
+            KS = round(KS, digits=3)
 
-            plot!(size=(900,600), legend=:bottomleft)
-            Plots.savefig("./motifs/$weighted_by/$region/motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude))_area_weight_$weighted_by.png")
+            set_theme!(Theme(fonts=(; regular="CMU Serif Bold")))
 
+            ########################################### ALL
+            # CCDF of all data scattered 
+            fig1 = Figure(resolution = (600, 500), font= "CMU Serif") 
+            ax1 = Axis(fig1[1, 1], xlabel = L"k\,[\text{connectivity}]", ylabel = L"P_k", xscale=log10, yscale=log10, ylabelsize = 26,
+                xlabelsize = 22, xgridstyle = :dash, ygridstyle = :dash, xtickalign = 1,
+                xticksize = 5, ytickalign = 1, yticksize = 5 , xlabelpadding = 10, ylabelpadding = 10)
+
+            x_ccdf_original_data, y_ccdf_original_data = powlaw.ccdf(area_weight)
+
+            
+            sc1 = scatter!(ax1, x_ccdf_original_data, y_ccdf_original_data,
+                color=(:midnightblue, 0.2), strokewidth=0.2, marker=:circle, markersize=13)
+
+            # Fit through truncated data
+            # Must shift the y values from the theoretical powerlaw by the values of y of original data, but cut to the length of truncated data
+            ln1 = lines!(ax1, x_powlaw, y_ccdf_original_data[end-length(x_ccdf)] .* y_powlaw,
+                color=:red, linewidth=2.5) 
+
+            axislegend(ax1, [sc1], [L"\text{cell\,size}=%$(cell_size)"], position = :rt, bgcolor = (:grey90, 0.25));
+            axislegend(ax1, [ln1], [L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)"], position = :lb, bgcolor = (:grey90, 0.25));
+
+
+            ########################################### TRUNCATED
+            # CCDF of truncated data (fitted), the plot, (re-normed)
+            fig2 = Figure(resolution = (600, 500), font= "CMU Serif") 
+            ax2 = Axis(fig2[1, 1], xlabel = L"k\,[\text{connectivity}]", ylabel = L"P_k", xscale=log10, yscale=log10, ylabelsize = 26,
+                xlabelsize = 22, xgridstyle = :dash, ygridstyle = :dash, xtickalign = 1,
+                xticksize = 5, ytickalign = 1, yticksize = 5 , xlabelpadding = 10, ylabelpadding = 10)
+
+            sc2 = scatter!(ax2, x_ccdf, y_ccdf,
+                color=(:midnightblue, 0.2), strokewidth=0.2, marker=:circle, markersize=13)
+
+            # Fit through truncated data (re-normed)
+            ln2 = lines!(ax2, x_powlaw, y_powlaw,
+                    color=:red, linewidth=2.5) 
+
+            axislegend(ax2, [sc2], [L"\text{cell\,size}=%$(cell_size)"], position = :rt, bgcolor = (:grey90, 0.25));
+            axislegend(ax2, [ln2], [L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)"], position = :lb, bgcolor = (:grey90, 0.25));  
+        
+
+            save("./motifs/$weighted_by/$region/motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude))_area_$(weighted_by)_all_data.png", fig1, px_per_unit=5)
+            save("./motifs/$weighted_by/$region/motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude))_area_$weighted_by.png", fig2, px_per_unit=5)
+            #############################################################################################################################################################
 
         end
     end
 end
+
 
 # Tetrahedron Analysis
 function analize_motifs_tetrahedron(region, weighted_by)
@@ -123,32 +181,30 @@ function analize_motifs_tetrahedron(region, weighted_by)
 
     # Based on parameter dependency, extract which cell_size lengths are the best:
     if region == "romania"
-        cell_sizes = [3, 4, 5];
-        minimum_magnitudes = [0,1,2,3];
+        cell_sizes = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5];
+        minimum_magnitudes = [3,2,1,0];
     elseif region == "california"
-        cell_sizes = [2.0];
-        minimum_magnitudes = [2,3];
+        cell_sizes = [1.0, 1.5, 2.0];
+        minimum_magnitudes = [3,2,1,0];
     elseif region == "italy"
-        cell_sizes = [10.0];
-        minimum_magnitudes = [2,3];
+        cell_sizes = [4.0, 4.5, 5.0, 5.5, 6.0, 7.5, 10.0];
+        minimum_magnitudes = [3,2,1,0];
     elseif region == "japan"
-        cell_sizes = [4,5];
-        minimum_magnitudes = [2,3,4];
-    end;
+        cell_sizes = [2.5, 3.0, 3.5, 4.0, 5.0];
+        minimum_magnitudes = [5,4,3,2];
+    end
 
     for cell_size in cell_sizes
         for minimum_magnitude in minimum_magnitudes
-
+            #############################################################################################################################################################
+            # Filter by magnitude
             df_filtered = df[df.Magnitude .> minimum_magnitude,:] 
-
             # Split into cubes
             df_filtered, df_filtered_cubes = region_cube_split(df_filtered,cell_size=cell_size,energyRelease=true);
 
             # Get the motif
             network_target_path = "./networks/$(region)/cell_size_$(string(cell_size))km/"
             motif_filename = "motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude)).csv"
-
-            # motifs = CSV.read(network_target_path * motif_filename, DataFrame);
             motifs = readdlm(network_target_path * motif_filename, ',', Int64);
 
             # Energy and volumes calculator
@@ -163,39 +219,99 @@ function analize_motifs_tetrahedron(region, weighted_by)
                     push!(volume_weight, volumes[key]/motif_energy[key][weight_key])
                 end
             end
-
+            #############################################################################################################################################################
+            # THE FIT
             # Powerlaw fit
-            fit_volume_weight = powlaw.Fit(volume_weight);
-            alpha = round(fit_volume_weight.alpha,digits=4)
-            xmin = round(fit_volume_weight.xmin,digits=6)
+            fit = powlaw.Fit(volume_weight);
+            alpha = fit.alpha
+            xmin = fit.xmin
+            KS = fit.power_law.KS(data=volume_weight)
 
-            # CCDF of FIT
-            x_ccdf, y_ccdf = fit_volume_weight.ccdf()
+            # Create a results file (if it does not exist) and save it empty
+            results_file = "results" * motif * ".csv"
+            if isfile("./motifs/$weighted_by/$region/$results_file")
+                println("file exists")
+                # Open results file to temporary dataframe
+                results = CSV.read("./motifs/$weighted_by/$region/$results_file", DataFrame)
+                # Append results to temporary dataframe
+                push!(results, [weighted_by, region, motif, cell_size, minimum_magnitude, alpha, xmin, KS])
+                # Save the temporary dataframe as results file
+                CSV.write("./motifs/$weighted_by/$region/$results_file", results, delim=",", header=true); 
+                # Close results file
+            else
+                results = DataFrame([Any[], Any[], Any[], Any[], Any[], Any[], Any[], Any[]], ["weighted_by","region","motif","cell_size","minmag","alpha","xmin","KS"])
+                push!(results, [weighted_by, region, motif, cell_size, minimum_magnitude, alpha, xmin, KS])
+                CSV.write("./motifs/$weighted_by/$region/$results_file", results, delim=",", header=true); 
+            end
+            #############################################################################################################################################################
 
-            # CCDF of all data
-            x_ccdf_original_data, y_ccdf_original_data = powlaw.ccdf(volume_weight)
-            Plots.scatter(x_ccdf_original_data, y_ccdf_original_data, xscale=:log10, yscale=:log10, 
-                            label="cell_size=$cell_size, alpha=$alpha, xmin=$xmin", markersize=3, alpha=0.7)
+            #############################################################################################################################################################
+            # THE PLOTS 
+            # CCDF of truncated data (fitted), x and y values
+            x_ccdf, y_ccdf = fit.ccdf()
 
-            # FIT shifted over all data
-            fit_power_law = fit_volume_weight.power_law.plot_ccdf()[:lines][1]
+            # The fit (from theoretical power_law)
+            fit_power_law = fit.power_law.plot_ccdf()[:lines][1]
             x_powlaw, y_powlaw = fit_power_law[:get_xdata](), fit_power_law[:get_ydata]()
 
-            Plots.plot!(x_powlaw, y_ccdf_original_data[end-length(x_ccdf)] .* y_powlaw, xscale=:log10, yscale=:log10, 
-                            label="", color=:red, linestyle=:dash, linewidth=3) 
+            # Round up the data
+            alpha = round(alpha, digits=2)
+            xmin = round(xmin, digits=5)
+            KS = round(KS, digits=3)
 
-            plot!(size=(900,600), legend=:bottomleft)                
-            Plots.savefig("./motifs/$weighted_by/$region/motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude))_volume_weight_$weighted_by.png")
+            set_theme!(Theme(fonts=(; regular="CMU Serif Bold")))
 
+            ########################################### ALL
+            # CCDF of all data scattered 
+            fig1 = Figure(resolution = (600, 500), font= "CMU Serif") 
+            ax1 = Axis(fig1[1, 1], xlabel = L"k\,[\text{connectivity}]", ylabel = L"P_k", xscale=log10, yscale=log10, ylabelsize = 26,
+                xlabelsize = 22, xgridstyle = :dash, ygridstyle = :dash, xtickalign = 1,
+                xticksize = 5, ytickalign = 1, yticksize = 5 , xlabelpadding = 10, ylabelpadding = 10)
+
+            x_ccdf_original_data, y_ccdf_original_data = powlaw.ccdf(volume_weight)
+
+            
+            sc1 = scatter!(ax1, x_ccdf_original_data, y_ccdf_original_data,
+                color=(:midnightblue, 0.2), strokewidth=0.2, marker=:circle, markersize=13)
+
+            # Fit through truncated data
+            # Must shift the y values from the theoretical powerlaw by the values of y of original data, but cut to the length of truncated data
+            ln1 = lines!(ax1, x_powlaw, y_ccdf_original_data[end-length(x_ccdf)] .* y_powlaw,
+                color=:red, linewidth=2.5) 
+
+            axislegend(ax1, [sc1], [L"\text{cell\,size}=%$(cell_size)"], position = :rt, bgcolor = (:grey90, 0.25));
+            axislegend(ax1, [ln1], [L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)"], position = :lb, bgcolor = (:grey90, 0.25));
+
+
+            ########################################### TRUNCATED
+            # CCDF of truncated data (fitted), the plot, (re-normed)
+            fig2 = Figure(resolution = (600, 500), font= "CMU Serif") 
+            ax2 = Axis(fig2[1, 1], xlabel = L"k\,[\text{connectivity}]", ylabel = L"P_k", xscale=log10, yscale=log10, ylabelsize = 26,
+                xlabelsize = 22, xgridstyle = :dash, ygridstyle = :dash, xtickalign = 1,
+                xticksize = 5, ytickalign = 1, yticksize = 5 , xlabelpadding = 10, ylabelpadding = 10)
+
+            sc2 = scatter!(ax2, x_ccdf, y_ccdf,
+                color=(:midnightblue, 0.2), strokewidth=0.2, marker=:circle, markersize=13)
+
+            # Fit through truncated data (re-normed)
+            ln2 = lines!(ax2, x_powlaw, y_powlaw,
+                    color=:red, linewidth=2.5) 
+
+            axislegend(ax2, [sc2], [L"\text{cell\,size}=%$(cell_size)"], position = :rt, bgcolor = (:grey90, 0.25));
+            axislegend(ax2, [ln2], [L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)"], position = :lb, bgcolor = (:grey90, 0.25));  
+        
+
+            save("./motifs/$weighted_by/$region/motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude))_volume_$(weighted_by)_all_data.png", fig1, px_per_unit=5)
+            save("./motifs/$weighted_by/$region/motif$(motif)_$(region)_cell_size_$(string(cell_size))km_minmag_$(string(minimum_magnitude))_volume_$weighted_by.png", fig2, px_per_unit=5)
+            #############################################################################################################################################################
         end
     end
 end
 
 
-if ARGS[1] == "italy"
-    analize_motifs_tetrahedron(ARGS[1], ARGS[2])
-end
 
-if ARGS[1] == "japan"
-    analize_motifs_tetrahedron(ARGS[1], ARGS[2])
+if ARGS[1] == "Triangle"
+    analize_motifs_triangle(ARGS[2], ARGS[3])
+elseif ARGS[1] == "Tetrahedron"
+    analize_motifs_tetrahedron(ARGS[2], ARGS[3])
 end

@@ -35,4 +35,5 @@ docs/site/
 *.jpeg
 *.webp
 
-*.history
+gmt.history
+GMTplot.ps
