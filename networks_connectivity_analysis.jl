@@ -4,8 +4,6 @@ using Graphs, MetaGraphs
 using DataStructures
 using PyCall
 using CairoMakie
-# using PyPlot; gr()
-# using HypothesisTests
 
 include("./src/cubes.jl")
 include("./src/network.jl")
@@ -229,7 +227,7 @@ function connectivity_analysis_histogram_cairo(region, cell_size)
 
     
     
-    # Save both plots
+    # Save all 3 plots
     save("./results/$region/$(region)_cell_size_$(cell_size)km_minmag_$(magnitude_threshold)_all_data.png", fig1, px_per_unit=5)
     save("./results/$region/$(region)_cell_size_$(cell_size)km_minmag_$(magnitude_threshold).png", fig2, px_per_unit=5)
     save("./results/$region/$(region)_cell_size_$(cell_size)km_minmag_$(magnitude_threshold)_histogram.png", fig3, px_per_unit=5)
@@ -240,11 +238,14 @@ end
 
 ######################################################################################################################
 ######################################################################################################################
-regions = ["romania", "california", "italy", "japan" ]
-for region in regions
-    # connectivity_analysis_cairo(region)
-    connectivity_analysis_histogram_cairo(region,5)
-end
+# regions = ["romania", "california", "italy", "japan" ]
+# for region in regions
+#     # connectivity_analysis_cairo(region)
+#     # connectivity_analysis_histogram_cairo(region,5)
+# end
+
+
+
 ######################################################################################################################
 ######################################################################################################################
 
