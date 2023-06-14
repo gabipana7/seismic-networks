@@ -3,11 +3,8 @@ using FileIO, Dates
 using PyCall
 using DelimitedFiles
 using CairoMakie
-# using StatsBase
-# using LinearAlgebra
 
 include("./src/cubes.jl")
-# include("./src/network.jl")
 include("./src/motifs_analysis.jl")
 
 @pyimport powerlaw as powlaw
@@ -189,8 +186,8 @@ function analize_motifs_tetrahedron(region, weighted_by)
         cell_sizes = [1.0, 1.5, 2.0];
         minimum_magnitudes = [3,2,1];
     elseif region == "italy"
-        cell_sizes = [4.0, 4.5, 5.0, 5.5];
-        minimum_magnitudes = [3,2,1];
+        cell_sizes = [4.5, 5.0, 5.5, 6.0, 7.5, 10.0];
+        minimum_magnitudes = [3,2];
     elseif region == "japan"
         cell_sizes = [2.5, 3.0, 3.5, 4.0, 5.0];
         minimum_magnitudes = [4,3,2];

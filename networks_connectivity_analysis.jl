@@ -30,17 +30,21 @@ include("./src/network.jl")
 function connectivity_analysis_cairo(region)
     # Select 3 of the best cell sizes from parameter dependency analysis
     if region == "romania"
-        cell_sizes = [3.5,  4.5,  5.5];
-        # minimum_magnitudes = [0,1,2,3];
+        cell_sizes = [3.5, 4.5, 5.5];
+        multiplier = [0.7, 1.0, 1.3]
+        multiplier_just_fits = [0.7, 1.0, 1.3]
     elseif region == "california"
         cell_sizes = [1.0, 1.5, 2.0];
-        # minimum_magnitudes = [2,3];
+        multiplier = [0.7, 1.0, 1.3]
+        multiplier_just_fits = [1.0, 1.0, 2.0]
     elseif region == "italy"
         cell_sizes = [4.0, 5.0, 6.0];
-        # minimum_magnitudes = [2,3];
+        multiplier = [0.5, 1.0, 2.0]
+        multiplier_just_fits = [0.7,1.0,1.3]
     elseif region == "japan"
         cell_sizes = [2.5, 3.5, 5.0];
-        # minimum_magnitudes = [2,3,4,5];
+        multiplier = [0.4,1.0,1.8]
+        multiplier_just_fits = [0.5,1.0,2.0]
     end;
     # Read data
     path = "./data/"
@@ -63,7 +67,8 @@ function connectivity_analysis_cairo(region)
         xticksize = 5, ytickalign = 1, yticksize = 5 , xlabelpadding = 10, ylabelpadding = 10, xtickformat="{:.1f}")
     
     markers=[:utriangle, :diamond, :circle]
-    colors=[:midnightblue, :green, :darkred]
+    colors=[:lightblue, :lightgreen, :lightsalmon]
+    line_colors=[:midnightblue, :green, :darkred]
     
     sc1 = Array{Any,1}(undef,3)
     sc2 = Array{Any,1}(undef,3)
@@ -94,23 +99,23 @@ function connectivity_analysis_cairo(region)
         x_ccdf_original_data, y_ccdf_original_data = powlaw.ccdf(degrees)
     
     
-        sc1[i] = scatter!(ax1, x_ccdf_original_data, y_ccdf_original_data,
-            color=(colors[i], 0.22), strokewidth=0.2, marker=markers[i], markersize=13)
+        sc1[i] = scatter!(ax1, multiplier[i] .* x_ccdf_original_data, y_ccdf_original_data,
+            color=(colors[i], 0.7), strokewidth=0.1, marker=markers[i], markersize=13)
     
         # Fit through truncated data
         # Must shift the y values from the theoretical powerlaw by the values of y of original data, but cut to the length of truncated data
-        ln = lines!(ax1, x_powlaw, y_ccdf_original_data[end-length(x_ccdf)] .* y_powlaw, label= L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)",
-            color=colors[i], linewidth=2.5) 
+        ln = lines!(ax1, multiplier[i] .* x_powlaw, y_ccdf_original_data[end-length(x_ccdf)] .* y_powlaw, label= L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)",
+            color=line_colors[i], linewidth=2.5) 
     
     
         ########################################### TRUNCATED
         # CCDF of truncated data (fitted), the plot, (re-normed)
-        sc2[i] = scatter!(ax2, x_ccdf, y_ccdf,
-            color=(colors[i], 0.22), strokewidth=0.2, marker=markers[i], markersize=13)
+        sc2[i] = scatter!(ax2, multiplier_just_fits[i] .* x_ccdf, y_ccdf,
+            color=(colors[i], 0.7), strokewidth=0.1, marker=markers[i], markersize=13)
     
         # Fit through truncated data (re-normed)
-        ln = lines!(ax2, x_powlaw, y_powlaw, label= L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)",
-             color=colors[i], linewidth=2.5) 
+        ln = lines!(ax2, multiplier_just_fits[i] .* x_powlaw, y_powlaw, label= L"\alpha=%$(alpha),\, x_{min}=%$(xmin),\, KS=%$(KS)",
+             color=line_colors[i], linewidth=2.5) 
     
     end
     
@@ -120,7 +125,7 @@ function connectivity_analysis_cairo(region)
     
     # Bottom left, results legend
     axislegend(ax1, position = :lb, bgcolor = (:grey90, 0.25));
-    axislegend(ax2, position = :lb, bgcolor = (:grey90, 0.25));
+    # axislegend(ax2, position = :lb, bgcolor = (:grey90, 0.25));
     
     # Save both plots
     save( "./results/$region/$(region)_minmag_$(magnitude_threshold)_best_fits_all_data.png", fig1, px_per_unit=5)
@@ -214,13 +219,16 @@ function connectivity_analysis_histogram_cairo(region, cell_size)
     d = counter(degrees)
     k = collect(keys(d))
     P_k = collect(values(d));
+    range_of_values = maximum(P_k) - minimum(P_k)
+    P_k_normalized = (P_k .- minimum(P_k)) ./ range_of_values
+    
 
     fig3 = Figure(resolution = (600, 500)) ## probably you need to install this font in your system
     ax3 = Axis(fig3[1, 1], xlabel = L"k\,[\text{connectivity}]", ylabel = L"P_k", xscale=log10, yscale=log10, ylabelsize = 26,
         xlabelsize = 24, xgridstyle = :dash, ygridstyle = :dash, xtickalign = 1,
         xticksize = 5, ytickalign = 1, yticksize = 5 , xlabelpadding = 10, ylabelpadding = 10)
 
-    sc3 = scatter!(k, P_k, label=L"\text{cell\,size}=%$(cell_size)",
+    sc3 = scatter!(k , P_k_normalized, label=L"\text{cell\,size}=%$(cell_size)",
         color=(:midnightblue, 0.5), strokewidth=0.5, marker=:circle, markersize=13)
 
     axislegend(ax3, position = :rt, bgcolor = (:grey90, 0.25));
@@ -235,6 +243,8 @@ function connectivity_analysis_histogram_cairo(region, cell_size)
 end
 ######################################################################################################################
 
+region = "california"
+connectivity_analysis_histogram_cairo(region,5)
 
 ######################################################################################################################
 ######################################################################################################################
