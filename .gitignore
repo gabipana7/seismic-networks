@@ -29,7 +29,7 @@ docs/site/
 *.csv
 *.xls
 *.txt
-
+*.pdf
 *.png
 *.jpg
 *.jpeg
