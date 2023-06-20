@@ -1,9 +1,9 @@
 using CSV, DataFrames
-using FileIO, Dates
-using Graphs, MetaGraphs
-using DataStructures
+# using FileIO, Dates
+# using Graphs, MetaGraphs
+# using DataStructures
 using PyCall
-using Plots
+using CairoMakie
 
 include("./src/cubes.jl")
 include("./src/network.jl")
@@ -57,7 +57,7 @@ end
 
 
 ###########################################################################################################################
-using CairoMakie
+
 
 # Parameter dependency connectivity on cell_size plot function
 function networks_parameter_dependency_plot_cairo(region; magnitude_threshold=0.0, goodness_of_fit=true)
