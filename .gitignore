@@ -25,6 +25,8 @@ docs/site/
 # Manifest.toml
 
 /docs/
+/__pycache__
+/.vscode
 
 *.csv
 *.xls
