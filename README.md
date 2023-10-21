@@ -39,4 +39,3 @@ Tetrahedrons
 - for each individual motif, the volume is weighted by its total(mean) energy
 - the distribution of the results is computed and analyzed with the Python Powerlaw package
 
-test
