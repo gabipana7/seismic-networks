@@ -38,3 +38,5 @@ Tetrahedrons
 - for each individual motif, the total (and mean) energy released by the earthquakes that occured in each of its nodes is computed
 - for each individual motif, the volume is weighted by its total(mean) energy
 - the distribution of the results is computed and analyzed with the Python Powerlaw package
+
+test
