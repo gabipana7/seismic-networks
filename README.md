@@ -55,3 +55,11 @@ Tetrahedrons
 ![Image](https://github.com/user-attachments/assets/29b7f944-057a-4a49-bfc7-676627d6dfb1)
 ![Image](https://github.com/user-attachments/assets/ed53fef1-82ed-461c-a1bf-ea5b97a46178)
 ![Image](https://github.com/user-attachments/assets/e4e2ed29-d43e-4951-96dd-93dd3ba9eb64)
+
+---
+This repository represents the toolbox support of our scientific article available at: https://www.sciencedirect.com/science/article/abs/pii/S0378437123008567
+
+Cite as:
+
+Gabriel Tiberiu Pană, Alexandru Nicolin-Żaczek, Motifs in earthquake networks: Romania, Italy, United States of America, and Japan, Physica A: Statistical Mechanics and its Applications, Volume 632, Part 1, 2023, 129301, ISSN 0378-4371, https://doi.org/10.1016/j.physa.2023.129301
+
